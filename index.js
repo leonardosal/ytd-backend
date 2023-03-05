@@ -38,8 +38,7 @@ app.get('/download', async(req, res) => {
         });
       }
     });
-    
-    ytdl.pipe(passtrough);
+    ytdl(req.query.url).pipe(passtrough)
   }
 
   return res.status(500).send();
