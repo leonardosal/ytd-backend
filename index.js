@@ -39,7 +39,7 @@ app.get('/download', async(req, res) => {
       }
     });
     
-    dl.pipe(passtrough);
+    ytdl.pipe(passtrough);
   }
 
   return res.status(500).send();
