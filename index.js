@@ -17,7 +17,7 @@ app.get('/download', async(req, res) => {
     const upload = new AWS.S3.ManagedUpload({
       params: {
         Bucket: process.env.CYCLIC_BUCKET_NAME,
-        Key: key,
+        Key: filename,
         Body: passtrough
       },
       partSize: 1024 * 1024 * 64 // in bytes
