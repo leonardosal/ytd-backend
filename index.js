@@ -3,6 +3,7 @@ const express = require('express')
 const ytdl = require('ytdl-core');
 const cors = require('cors');
 const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
 const app = express()
 const port = 3000
 
@@ -14,30 +15,14 @@ app.get('/download', async(req, res) => {
     const filename = (await ytdl.getBasicInfo(req.query.url)).videoDetails.title;
    //res.setHeader('Content-Disposition', `attachmentt; filename=${filename}.mp4`)
 
-    const upload = new AWS.S3.ManagedUpload({
-      params: {
-        Bucket: process.env.CYCLIC_BUCKET_NAME,
-        Key: filename,
-        Body: passtrough
-      },
-      partSize: 1024 * 1024 * 64 // in bytes
-    });
+    const putObjectPromise = await s3.putObject({
+      Bucket: process.env.CYCLIC_BUCKET_NAME,
+      Key: filename,
+      Body: passtrough
+    }).promise();
 
-    upload.on('httpUploadProgress', (progress) => {
-      console.log(`[${req.query.url}] copying video ...`, progress);
-    });
+    res.status(200).json(putObjectPromise);
 
-    upload.send((err) => {
-      if (err) {
-        res.status(500).send(err);
-      } else {
-        res.status(200).json({
-          bucketName: process.env.CYCLIC_BUCKET_NAME,
-          key: filename,
-          url: `s3://${process.env.CYCLIC_BUCKET_NAME}/${key}`
-        });
-      }
-    });
     ytdl(req.query.url).pipe(passtrough)
   }
 
